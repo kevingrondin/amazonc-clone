@@ -7,6 +7,7 @@ import Header from "./Header";
 import Home from "./Home";
 import Checkout from "./Checkout";
 import Login from "./Login";
+import Payment from "./Payment";
 
 function App() {
   const [{ user, basket }, dispatch] = useStateValue();
@@ -32,6 +33,7 @@ function App() {
         <div className="App">
           <Header />
           <Routes>
+            <Route path="/payment" element={<Payment />} />
             <Route path="/login" element={<Login />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/" element={<Home />} />
