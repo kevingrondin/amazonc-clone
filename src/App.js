@@ -9,10 +9,9 @@ import Checkout from "./Checkout";
 import Login from "./Login";
 
 function App() {
-  const [{}, dispatch] = useStateValue();
+  const [{ user, basket }, dispatch] = useStateValue();
   useEffect(() => {
     Firebase.auth.onAuthStateChanged((authUser) => {
-      console.log(authUser);
       if (authUser) {
         dispatch({
           type: "SET_USER",
@@ -26,6 +25,7 @@ function App() {
       }
     });
   }, []);
+  console.log(basket, user);
   return (
     <>
       <HashRouter>
