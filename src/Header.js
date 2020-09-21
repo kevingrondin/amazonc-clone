@@ -1,12 +1,19 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import "./Header.css";
 import SearchIcon from "@material-ui/icons/Search";
 import ShoppingBasketIcon from "@material-ui/icons/ShoppingBasket";
-import { Link } from "react-router-dom";
 import { useStateValue } from "./StateProvider";
+import Firebase from "./firebase";
 
 function Header() {
-  const [{ basket }] = useStateValue();
+  const [{ basket, user }] = useStateValue();
+
+  const handleAuthenticaton = () => {
+    if (user) {
+      Firebase.logout();
+    }
+  };
 
   return (
     <div className="header">
@@ -14,6 +21,7 @@ function Header() {
         <img
           className="header__logo"
           src="http://pngimg.com/uploads/amazon/amazon_PNG11.png"
+          alt="logo"
         />
       </Link>
 
@@ -23,10 +31,14 @@ function Header() {
       </div>
 
       <div className="header__nav">
-        <Link to="/login">
-          <div className="header__option">
-            <span className="header__optionLineOne">Hello</span>
-            <span className="header__optionLineTwo">user</span>
+        <Link to={!user && "/login"}>
+          <div onClick={handleAuthenticaton} className="header__option">
+            <span className="header__optionLineOne">
+              Hello {!user ? "Guest" : user.email}
+            </span>
+            <span className="header__optionLineTwo">
+              {user ? "Sign Out" : "Sign In"}
+            </span>
           </div>
         </Link>
 
