@@ -11,6 +11,7 @@ import Payment from "./Payment";
 
 function App() {
   const [{ user, basket }, dispatch] = useStateValue();
+
   useEffect(() => {
     Firebase.auth.onAuthStateChanged((authUser) => {
       if (authUser) {
@@ -25,7 +26,9 @@ function App() {
         });
       }
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   console.log(basket, user);
   return (
     <>
