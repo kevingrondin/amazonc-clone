@@ -1,13 +1,17 @@
 import React, { useEffect } from "react";
 import { Routes, Route, HashRouter } from "react-router-dom";
-import Firebase from "./firebase";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
 import { useStateValue } from "./StateProvider";
+import Firebase from "./firebase";
 import "./App.css";
 import Header from "./Header";
 import Home from "./Home";
 import Checkout from "./Checkout";
 import Login from "./Login";
 import Payment from "./Payment";
+
+const promise = loadStripe("pk_test_0rjEsHT7VjcE7V7MRBykPq5k00eWkjLlao");
 
 function App() {
   const [{ user, basket }, dispatch] = useStateValue();
@@ -34,13 +38,46 @@ function App() {
     <>
       <HashRouter>
         <div className="App">
-          <Header />
           <Routes>
-            <Route path="/payment" element={<Payment />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/" element={<Home />} />
-            <Route path="*" element={<Home />} />
+            <Route
+              path="/payment"
+              element={
+                <>
+                  <Header />
+                  <Elements stripe={promise}>
+                    <Payment />
+                  </Elements>
+                </>
+              }
+            />
+            <Route
+              path="/checkout"
+              element={
+                <>
+                  <Header />
+                  <Checkout />
+                </>
+              }
+            />
+            <Route
+              path="/"
+              element={
+                <>
+                  <Header />
+                  <Home />
+                </>
+              }
+            />
+            <Route
+              path="*"
+              element={
+                <>
+                  <Header />
+                  <Home />
+                </>
+              }
+            />
           </Routes>
         </div>
       </HashRouter>
