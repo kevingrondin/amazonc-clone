@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import CurrencyFormat from "react-currency-format";
 import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import axios from "./axios";
+import Firebase from "./firebase";
 import "./Payment.css";
 import CheckoutProduct from "./CheckoutProduct";
 import { useStateValue } from "./StateProvider";
@@ -19,17 +20,20 @@ function Payment() {
   const [succeeded, setSucceeded] = useState(false);
   const [processing, setProcessing] = useState("");
   const [error, setError] = useState(null);
-  const [disabled] = useState(true);
+  const [disabled, setDisabled] = useState(true);
   const [clientSecret, setClientSecret] = useState(true);
 
   useEffect(() => {
+    // generate the special stripe secret which allows us to charge a customer
     const getClientSecret = async () => {
-      let { data } = await axios({
+      const { data } = await axios({
         method: "post",
+        // Stripe expects the total in a currencies subunits
         url: `/payments/create?total=${getBasketTotal(basket) * 100}`,
       });
       setClientSecret(data.clientSecret);
     };
+
     getClientSecret();
   }, [basket]);
 
@@ -44,14 +48,33 @@ function Payment() {
         },
       })
       .then(({ paymentIntent }) => {
+        Firebase.db
+          .collection("users")
+          .doc(user?.uid)
+          .collection("orders")
+          .doc(paymentIntent.id)
+          .set({
+            basket,
+            amound: paymentIntent.amount,
+            created: paymentIntent.created,
+          });
         setSucceeded(true);
         setError(null);
         setProcessing(false);
 
+        dispatchEvent({
+          type: "EMPTY_BASKET",
+        });
+
         navigate("/orders", { replace: true });
       });
   };
-  const handleChange = (e) => {};
+  const handleChange = (event) => {
+    // Listen for changes in the CardElement
+    // and display any errors as the customer types their card details
+    setDisabled(event.empty);
+    setError(event.error ? event.error.message : "");
+  };
 
   return (
     <div className="payment">
@@ -78,9 +101,8 @@ function Payment() {
             <h3>Review items and delivery</h3>
           </div>
           <div className="payment__items">
-            {basket.map((item, i) => (
+            {basket.map((item) => (
               <CheckoutProduct
-                key={+item.id + i}
                 id={item.id}
                 title={item.title}
                 image={item.image}

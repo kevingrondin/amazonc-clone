@@ -48,4 +48,4 @@ async function logout() {
   return logout;
 }
 
-export default { auth, register, login, logout };
+export default { auth, db, login, logout, register };
